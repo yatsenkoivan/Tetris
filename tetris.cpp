@@ -263,6 +263,24 @@ void print_board(){
 	
 }
 
+void remove_line(){
+	bool flag = true;
+	for (int i=board_y-1; i>=0; i--){
+		flag = true;
+		for (int j=0; j<board_x; j++){
+			if (board[i][j].color == 0){
+				flag = false;
+				break;
+			}
+		}
+		if (flag){
+			for (int j=0; j<board_x; j++){
+				board[i][j].color = 0;
+			}
+			return;
+		}
+	}
+}
 
 bool move_func(char move, controll &figure){
 	
@@ -317,10 +335,11 @@ int main(){
 	char move{};
 	
 	while (game){
+		remove_line();
 		if (!is_figure_controlled){
 			color_temp = rand()%6+9;
 			type_temp = rand()%7+1;
-			create_object(color_temp, type_temp, controlled_figure);
+			create_object(color_temp, 1, controlled_figure);
 			
 			
 			is_figure_controlled = true;
