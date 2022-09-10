@@ -1,5 +1,6 @@
 #include <iostream>
 #include <conio.h>
+#include <vector>
 #include <windows.h>
 #include <time.h>
 using namespace std;
@@ -49,6 +50,20 @@ struct element{
 	
 };
 
+struct controll{
+	vector<int> x{};
+	vector<int> y{};
+	int color = 0;
+	/*9  - blue
+	  12 - red
+	  14 - yellow
+	  10 - green
+	  13 - pink
+	  11 - light blue
+	*/
+};
+
+
 //board of figures (info in structs)
 element** board = new element*[board_y];
 
@@ -65,8 +80,8 @@ void set_color(int color_id){
 	SetConsoleTextAttribute(h, color_id);
 }
 
-void create_object(int color, int type){
-	
+void create_object(int color, int type, controll& figure){
+	figure.color = color;
 	/*
 	
 	@@@@
@@ -75,6 +90,8 @@ void create_object(int color, int type){
 	if (type == 1){
 		for (int i=3; i<7; i++){
 			board[0][i].color = color;
+			figure.x.push_back(i);
+			figure.y.push_back(0);
 		}
 	}
 	
@@ -87,8 +104,12 @@ void create_object(int color, int type){
 	*/
 	if (type == 2){
 		board[0][3].color = color;
+		figure.x.push_back(3);
+		figure.y.push_back(0);
 		for (int i=3; i<6; i++){
 			board[1][i].color = color;
+			figure.x.push_back(i);
+			figure.y.push_back(1);
 		}
 	}
 	
@@ -100,8 +121,12 @@ void create_object(int color, int type){
 	*/
 	if (type == 3){
 		board[0][5].color = color;
+		figure.x.push_back(5);
+		figure.y.push_back(0);
 		for (int i=3; i<6; i++){
 			board[1][i].color = color;
+			figure.x.push_back(i);
+			figure.y.push_back(1);
 		}
 	}
 	
@@ -116,6 +141,10 @@ void create_object(int color, int type){
 		for (int i=4; i<6; i++){
 			board[0][i].color = color;
 			board[1][i].color = color;
+			figure.x.push_back(i);
+			figure.y.push_back(0);
+			figure.x.push_back(i);
+			figure.y.push_back(1);
 		}
 	}
 	
@@ -130,6 +159,10 @@ void create_object(int color, int type){
 		for (int i=3; i<5; i++){
 			board[0][i+1].color = color;
 			board[1][i].color = color;
+			figure.x.push_back(i+1);
+			figure.y.push_back(0);
+			figure.x.push_back(i);
+			figure.y.push_back(1);
 		}
 	}
 	
@@ -145,6 +178,10 @@ void create_object(int color, int type){
 		for (int i=3; i<5; i++){
 			board[1][i+1].color = color;
 			board[0][i].color = color;
+			figure.x.push_back(i+1);
+			figure.y.push_back(1);
+			figure.x.push_back(i);
+			figure.y.push_back(0);
 		}
 	}
 	
@@ -156,12 +193,33 @@ void create_object(int color, int type){
 	*/
 	if (type == 7){
 		board[0][4].color = color;
+		figure.x.push_back(4);
+		figure.y.push_back(0);
 		for (int i=3; i<6; i++){
 			board[1][i].color = color;
+			figure.x.push_back(i);
+			figure.y.push_back(1);
 		}
 	}
 	
 	
+}
+
+bool figure_fall(controll &figure){
+	for (int i: figure.y){
+		if (i >= board_y-1) return false;
+	}
+	
+	for (int i=3; i>=0; i--){
+		//cout << figure.y[i] << " " << figure.x[i] << endl;
+		//_getch();
+		board[figure.y[i]][figure.x[i]].color = 0;
+		figure.y[i]++;
+	}
+	for (int i=3; i>=0; i--){
+		board[figure.y[i]][figure.x[i]].color = figure.color;
+	}
+	return true;
 }
 
 void print_board(){
@@ -199,7 +257,7 @@ int main(){
 	set_board();
 	
 	cout << "/------TETRIS------/\n";
-	cout << "a, d - to move\nq, e - to rotate\ns - to fast put\n\n";
+	cout << "a, d - to move\nw - to rotate\ns - to fast put\n\n";
 	cout << "Press any key to continue . . .";
 	_getch();
 	system("cls");
@@ -209,13 +267,16 @@ int main(){
 	
 	int color_temp = 0;
 	int type_temp = 0;
+	controll controlled_figure{};
 	
 	while (game){
 		if (!is_figure_controlled){
 			color_temp = rand()%6+9;
 			type_temp = rand()%7+1;
-			cout << color_temp << " " << type_temp << endl;
-			create_object(color_temp, type_temp);
+			create_object(color_temp, type_temp, controlled_figure);
+			
+			
+			
 			is_figure_controlled = true;
 			
 		}
@@ -224,10 +285,16 @@ int main(){
 		
 		char move{};
 		if (kbhit()){ //when something is pressed
-			
+			move = _getch();
 			
 		}
-		move = _getch();
+		Sleep(500);
+		if (!figure_fall(controlled_figure)){
+			is_figure_controlled = false;
+			controlled_figure.color = 0;
+			controlled_figure.x.clear();
+			controlled_figure.y.clear();
+		}
 		system("cls");
 	}
 	
