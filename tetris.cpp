@@ -205,9 +205,22 @@ void create_object(int color, int type, controll& figure){
 	
 }
 
+bool _find(vector<int> arr, int elem){
+	for (int i: arr){
+		if (i == elem) return true;
+	}
+	return false;
+}
+
 bool figure_fall(controll &figure){
-	for (int i: figure.y){
-		if (i >= board_y-1) return false;
+	element temp{};
+	for (int i=0; i<4; i++){
+		if (figure.y[i] >= board_y-1) return false;
+		if (!_find(figure.y, figure.y[i]+1)){
+			if (board[figure.y[i]+1][figure.x[i]].color != 0) return false;
+		}
+		
+		
 	}
 	
 	for (int i=3; i>=0; i--){
