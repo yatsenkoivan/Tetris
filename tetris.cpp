@@ -265,6 +265,14 @@ void print_board(){
 
 
 bool move_func(char move, controll &figure){
+	
+	if (move == 's'){
+		while (true){
+			if (!figure_fall(figure)) break;
+		}
+		return true;
+	}
+	
 	int step = 0;
 	if (move == 'd') step = -1; //end-1 of x
 	if (move == 'a') step = -20; //start+1 of x
