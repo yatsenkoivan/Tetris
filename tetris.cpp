@@ -7,7 +7,7 @@ using namespace std;
 
 HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
 char s = 219; //symbol 'white square', will be used to show figures.
-const int board_x = 10;
+const int board_x = 20;
 const int board_y = 20;
 
 
@@ -263,6 +263,31 @@ void print_board(){
 	
 }
 
+
+bool move_func(char move, controll &figure){
+	int step = 0;
+	if (move == 'd') step = -1; //end-1 of x
+	if (move == 'a') step = -20; //start+1 of x
+	
+	for (int i=0; i<4; i++){
+		if (figure.x[i] == board_x+step) return false;
+	}
+	
+	if (move == 'd') step = 1;
+	if (move == 'a') step = -1;
+	
+	for (int i=0; i<4; i++){
+		board[figure.y[i]][figure.x[i]].color = 0;
+		figure.x[i] += step;
+	}
+	for (int i=0; i<4; i++){
+		board[figure.y[i]][figure.x[i]].color = figure.color;
+	}
+	return true;
+	
+}
+
+
 int main(){
 	
 	srand(time(NULL));
@@ -281,6 +306,7 @@ int main(){
 	int color_temp = 0;
 	int type_temp = 0;
 	controll controlled_figure{};
+	char move{};
 	
 	while (game){
 		if (!is_figure_controlled){
@@ -289,17 +315,15 @@ int main(){
 			create_object(color_temp, type_temp, controlled_figure);
 			
 			
-			
 			is_figure_controlled = true;
 			
 		}
 		
 		print_board();
 		
-		char move{};
-		if (kbhit()){ //when something is pressed
+		if (kbhit()){
 			move = _getch();
-			
+			move_func(move, controlled_figure);
 		}
 		Sleep(500);
 		if (!figure_fall(controlled_figure)){
