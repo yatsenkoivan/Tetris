@@ -7,7 +7,7 @@ using namespace std;
 
 HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
 char s = 219; //symbol 'white square', will be used to show figures.
-const int board_x = 20;
+const int board_x = 10;
 const int board_y = 20;
 
 
@@ -282,18 +282,19 @@ void remove_line(){
 	}
 }
 
-bool move_func(char move, controll &figure){
+bool move_func(char move, controll &figure, float &elapsed){
 	
 	if (move == 's'){
 		while (true){
 			if (!figure_fall(figure)) break;
 		}
+		elapsed = 1;
 		return true;
 	}
 	
 	int step = 0;
 	if (move == 'd') step = -1; //end-1 of x
-	if (move == 'a') step = -20; //start+1 of x
+	if (move == 'a') step = -10; //start+1 of x
 	
 	for (int i=0; i<4; i++){
 		if (figure.x[i] == board_x+step) return false;
@@ -316,6 +317,10 @@ bool move_func(char move, controll &figure){
 
 int main(){
 	
+	float set_time = 0.2;
+	time_t now;
+	time_t start_time;
+	
 	srand(time(NULL));
 	
 	set_board();
@@ -334,32 +339,47 @@ int main(){
 	controll controlled_figure{};
 	char move{};
 	
+	time(&start_time);
+	float elapsed = 0;
+	
 	while (game){
+
+		if (elapsed == 0){
+			time(&start_time);
+		}
+		
 		remove_line();
 		if (!is_figure_controlled){
-			color_temp = rand()%6+9;
 			type_temp = rand()%7+1;
-			create_object(color_temp, 1, controlled_figure);
+			color_temp = rand()%6+9;
+			create_object(color_temp, type_temp, controlled_figure);
 			
 			
 			is_figure_controlled = true;
 			
 		}
 		
-		print_board();
-		
 		if (kbhit()){
 			move = _getch();
-			move_func(move, controlled_figure);
+			move_func(move, controlled_figure, elapsed);
+			system("cls");
+			print_board();
 		}
-		Sleep(500);
-		if (!figure_fall(controlled_figure)){
-			is_figure_controlled = false;
-			controlled_figure.color = 0;
-			controlled_figure.x.clear();
-			controlled_figure.y.clear();
+		now = time(NULL);
+		elapsed = difftime(now, start_time);
+		if (elapsed >= set_time){
+			if (!figure_fall(controlled_figure)){
+				is_figure_controlled = false;
+				controlled_figure.color = 0;
+				controlled_figure.x.clear();
+				controlled_figure.y.clear();
+			}
+			system("cls");
+			print_board();
+			elapsed = 0;
 		}
-		system("cls");
+		
+		
 	}
 	
 }
