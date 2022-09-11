@@ -5,6 +5,8 @@
 #include <time.h>
 using namespace std;
 
+int qweasd=0; //test
+
 HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
 char s = 219; //symbol 'white square', will be used to show figures.
 const int board_x = 10;
@@ -120,14 +122,14 @@ void create_object(int color, int type, controll& figure){
 	
 	*/
 	if (type == 3){
-		board[0][5].color = color;
-		figure.x.push_back(5);
-		figure.y.push_back(0);
 		for (int i=3; i<6; i++){
 			board[1][i].color = color;
 			figure.x.push_back(i);
 			figure.y.push_back(1);
 		}
+		board[0][5].color = color;
+		figure.x.push_back(5);
+		figure.y.push_back(0);
 	}
 	
 	/*
@@ -157,12 +159,14 @@ void create_object(int color, int type, controll& figure){
 	if (type == 5){
 		
 		for (int i=3; i<5; i++){
-			board[0][i+1].color = color;
 			board[1][i].color = color;
-			figure.x.push_back(i+1);
-			figure.y.push_back(0);
+			board[0][i+1].color = color;
+			
 			figure.x.push_back(i);
 			figure.y.push_back(1);
+			figure.x.push_back(i+1);
+			figure.y.push_back(0);
+			
 		}
 	}
 	
@@ -176,12 +180,14 @@ void create_object(int color, int type, controll& figure){
 	if (type == 6){
 		
 		for (int i=3; i<5; i++){
-			board[1][i+1].color = color;
 			board[0][i].color = color;
-			figure.x.push_back(i+1);
-			figure.y.push_back(1);
+			board[1][i+1].color = color;
+			
 			figure.x.push_back(i);
 			figure.y.push_back(0);
+			figure.x.push_back(i+1);
+			figure.y.push_back(1);
+			
 		}
 	}
 	
@@ -192,14 +198,21 @@ void create_object(int color, int type, controll& figure){
 	
 	*/
 	if (type == 7){
-		board[0][4].color = color;
-		figure.x.push_back(4);
-		figure.y.push_back(0);
-		for (int i=3; i<6; i++){
+		
+		for (int i=3; i<5; i++){
 			board[1][i].color = color;
 			figure.x.push_back(i);
 			figure.y.push_back(1);
 		}
+		
+		board[0][4].color = color;
+		figure.x.push_back(4);
+		figure.y.push_back(0);
+		
+		board[1][5].color = color;
+		figure.x.push_back(5);
+		figure.y.push_back(1);
+		
 	}
 	
 	
@@ -342,11 +355,9 @@ int main(){
 	time(&start_time);
 	float elapsed = 0;
 	
+	print_board();
+	
 	while (game){
-
-		if (elapsed == 0){
-			time(&start_time);
-		}
 		
 		remove_line();
 		if (!is_figure_controlled){
@@ -358,15 +369,17 @@ int main(){
 			is_figure_controlled = true;
 			
 		}
-		
+		now = time(NULL);
+		elapsed = difftime(now, start_time);
 		if (kbhit()){
 			move = _getch();
 			move_func(move, controlled_figure, elapsed);
 			system("cls");
 			print_board();
 		}
-		now = time(NULL);
-		elapsed = difftime(now, start_time);
+		
+		
+		
 		if (elapsed >= set_time){
 			if (!figure_fall(controlled_figure)){
 				is_figure_controlled = false;
@@ -374,12 +387,9 @@ int main(){
 				controlled_figure.x.clear();
 				controlled_figure.y.clear();
 			}
+			time(&start_time);
 			system("cls");
 			print_board();
-			elapsed = 0;
 		}
-		
-		
 	}
-	
 }
