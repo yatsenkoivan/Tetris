@@ -1,395 +1,51 @@
-#include <iostream>
 #include <conio.h>
-#include <vector>
-#include <windows.h>
 #include <time.h>
-using namespace std;
-
-int qweasd=0; //test
-
-HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
-char s = 219; //symbol 'white square', will be used to show figures.
-const int board_x = 10;
-const int board_y = 20;
-
-
-struct element{
-	int color = 0;
-	/*9  - blue
-	  12 - red
-	  14 - yellow
-	  10 - green
-	  13 - pink
-	  11 - light blue
-	*/
-	int type = 0;
-	/*
-		1:
-	  		*@**
-		2:
-			*
-			*@*
-		3:
-			  *
-			*@*
-		4:
-			**
-			@*
-		5:
-			 **
-			*@
-		6:
-			**
-			 @*
-		7:
-			 *
-			*@*
-			
-	*/
-	
-	int start_x = 0; //@'s x
-	int start_y = 0; //@'s y
-	
-};
-
-struct controll{
-	vector<int> x{};
-	vector<int> y{};
-	int color = 0;
-	/*9  - blue
-	  12 - red
-	  14 - yellow
-	  10 - green
-	  13 - pink
-	  11 - light blue
-	*/
-};
-
-
-//board of figures (info in structs)
-element** board = new element*[board_y];
-
-//set_board
-void set_board(){
-	for (int i=0; i<board_y; i++){
-		board[i] = new element[board_x];
-	}
-}
-
-
-//set color of text (figures)
-void set_color(int color_id){
-	SetConsoleTextAttribute(h, color_id);
-}
-
-void create_object(int color, int type, controll& figure){
-	figure.color = color;
-	/*
-	
-	@@@@
-	
-	*/
-	if (type == 1){
-		for (int i=3; i<7; i++){
-			board[0][i].color = color;
-			figure.x.push_back(i);
-			figure.y.push_back(0);
-		}
-	}
-	
-	
-	/*
-	
-	@
-	@@@
-	
-	*/
-	if (type == 2){
-		board[0][3].color = color;
-		figure.x.push_back(3);
-		figure.y.push_back(0);
-		for (int i=3; i<6; i++){
-			board[1][i].color = color;
-			figure.x.push_back(i);
-			figure.y.push_back(1);
-		}
-	}
-	
-	/*
-	
-	  @
-	@@@
-	
-	*/
-	if (type == 3){
-		for (int i=3; i<6; i++){
-			board[1][i].color = color;
-			figure.x.push_back(i);
-			figure.y.push_back(1);
-		}
-		board[0][5].color = color;
-		figure.x.push_back(5);
-		figure.y.push_back(0);
-	}
-	
-	/*
-	
-	@@
-	@@
-	
-	*/
-	if (type == 4){
-		
-		for (int i=4; i<6; i++){
-			board[0][i].color = color;
-			board[1][i].color = color;
-			figure.x.push_back(i);
-			figure.y.push_back(0);
-			figure.x.push_back(i);
-			figure.y.push_back(1);
-		}
-	}
-	
-	/*
-	
-	 @@
-	@@
-	
-	*/
-	if (type == 5){
-		
-		for (int i=3; i<5; i++){
-			board[1][i].color = color;
-			board[0][i+1].color = color;
-			
-			figure.x.push_back(i);
-			figure.y.push_back(1);
-			figure.x.push_back(i+1);
-			figure.y.push_back(0);
-			
-		}
-	}
-	
-	
-	/*
-	
-	@@
-	 @@
-	
-	*/
-	if (type == 6){
-		
-		for (int i=3; i<5; i++){
-			board[0][i].color = color;
-			board[1][i+1].color = color;
-			
-			figure.x.push_back(i);
-			figure.y.push_back(0);
-			figure.x.push_back(i+1);
-			figure.y.push_back(1);
-			
-		}
-	}
-	
-	/*
-	
-	 @
-	@@@
-	
-	*/
-	if (type == 7){
-		
-		for (int i=3; i<5; i++){
-			board[1][i].color = color;
-			figure.x.push_back(i);
-			figure.y.push_back(1);
-		}
-		
-		board[0][4].color = color;
-		figure.x.push_back(4);
-		figure.y.push_back(0);
-		
-		board[1][5].color = color;
-		figure.x.push_back(5);
-		figure.y.push_back(1);
-		
-	}
-	
-	
-}
-
-bool _find(vector<int> arr, int elem){
-	for (int i: arr){
-		if (i == elem) return true;
-	}
-	return false;
-}
-
-bool figure_fall(controll &figure){
-	element temp{};
-	for (int i=0; i<4; i++){
-		if (figure.y[i] >= board_y-1) return false;
-		if (!_find(figure.y, figure.y[i]+1)){
-			if (board[figure.y[i]+1][figure.x[i]].color != 0) return false;
-		}
-		
-		
-	}
-	
-	for (int i=3; i>=0; i--){
-		//cout << figure.y[i] << " " << figure.x[i] << endl;
-		//_getch();
-		board[figure.y[i]][figure.x[i]].color = 0;
-		figure.y[i]++;
-	}
-	for (int i=3; i>=0; i--){
-		board[figure.y[i]][figure.x[i]].color = figure.color;
-	}
-	return true;
-}
-
-void print_board(){
-	for (int i=0; i<board_x+2; i++){
-		cout << "-";
-	}
-	cout << endl;
-	for (int i=0; i<board_y; i++){
-		cout << "|";
-		for (int j=0; j<board_x; j++){
-			if (board[i][j].color != 0){
-				set_color(board[i][j].color);
-				cout << s;
-				set_color(7); //set color to white;
-				continue;
-			}
-			cout << " ";
-			
-		}
-		cout << "|" << endl;
-	}
-	
-	for (int i=0; i<board_x+2; i++){
-		cout << "-";
-	}
-	
-	cout << endl;
-	
-}
-
-void remove_line(){
-	bool flag = true;
-	for (int i=board_y-1; i>=0; i--){
-		flag = true;
-		for (int j=0; j<board_x; j++){
-			if (board[i][j].color == 0){
-				flag = false;
-				break;
-			}
-		}
-		if (flag){
-			for (int j=0; j<board_x; j++){
-				board[i][j].color = 0;
-			}
-			return;
-		}
-	}
-}
-
-bool move_func(char move, controll &figure, float &elapsed){
-	
-	if (move == 's'){
-		while (true){
-			if (!figure_fall(figure)) break;
-		}
-		elapsed = 1;
-		return true;
-	}
-	
-	int step = 0;
-	if (move == 'd') step = -1; //end-1 of x
-	if (move == 'a') step = -10; //start+1 of x
-	
-	for (int i=0; i<4; i++){
-		if (figure.x[i] == board_x+step) return false;
-	}
-	
-	if (move == 'd') step = 1;
-	if (move == 'a') step = -1;
-	
-	for (int i=0; i<4; i++){
-		board[figure.y[i]][figure.x[i]].color = 0;
-		figure.x[i] += step;
-	}
-	for (int i=0; i<4; i++){
-		board[figure.y[i]][figure.x[i]].color = figure.color;
-	}
-	return true;
-	
-}
-
+#include "tetris.h"
 
 int main(){
 	
-	float set_time = 0.2;
-	time_t now;
-	time_t start_time;
+	float delay = 0.4;
 	
-	srand(time(NULL));
+	srand(time(0));
 	
-	set_board();
+	Figure f;
 	
-	cout << "/------TETRIS------/\n";
-	cout << "a, d - to move\nw - to rotate\ns - to fast put\n\n";
-	cout << "Press any key to continue . . .";
-	_getch();
+	f.set();
+	
+	welcome();
+	start();
 	system("cls");
+	f.set();
 	
-	bool game = true;
-	bool is_figure_controlled = false; //if we currently controlling figure
+	time_t start = time(0);
+	time_t end = time(0);
+	float dif;
 	
-	int color_temp = 0;
-	int type_temp = 0;
-	controll controlled_figure{};
-	char move{};
+	char dir;
 	
-	time(&start_time);
-	float elapsed = 0;
-	
-	print_board();
-	
-	while (game){
+	show_board(f);
+	while (true){
 		
-		remove_line();
-		if (!is_figure_controlled){
-			type_temp = rand()%7+1;
-			color_temp = rand()%6+9;
-			create_object(color_temp, type_temp, controlled_figure);
-			
-			
-			is_figure_controlled = true;
-			
-		}
-		now = time(NULL);
-		elapsed = difftime(now, start_time);
 		if (kbhit()){
-			move = _getch();
-			move_func(move, controlled_figure, elapsed);
+			dir = _getch();
+			f.move(dir);
+			if (f.color == 0) f.set();
 			system("cls");
-			print_board();
+			show_board(f);
 		}
 		
+		end = time(0);
+		dif = difftime(end, start);
 		
-		
-		if (elapsed >= set_time){
-			if (!figure_fall(controlled_figure)){
-				is_figure_controlled = false;
-				controlled_figure.color = 0;
-				controlled_figure.x.clear();
-				controlled_figure.y.clear();
-			}
-			time(&start_time);
+		if (dif >= delay){
+			start = time(0);
+			f.move('s');
+			if (f.color == 0) f.set();
 			system("cls");
-			print_board();
+			show_board(f);
 		}
 	}
 }
+
+
+
