@@ -113,17 +113,45 @@ class Board{
 				std::cout << "[]";
 			}
 		}
-		void Move(char move){
-			
+		void Press(char move){
+			int shift=0;
 			switch(move){
 				case 'a':
 				case 'A':
-					
+					shift-=2;
 					break;
 				case 'd':
 				case 'D':
-					
+					shift+=2;
 					break;
+			}
+			int* x = new int[Figure::size];
+			int* y = new int[Figure::size];
+
+			for (int ind=0; ind<Figure::size; ind++){
+				x[ind] = current->x[ind]+shift;
+				y[ind] = current->y[ind];
+			}
+			
+			for (int ind=0; ind<Figure::size; ind++){
+				if (x[ind] < 0 || x[ind] >= w) return;
+				if (arr[y[ind]][x[ind]] != Board::void_symbol) return;
+			}
+			
+			ReshowFigure(shift);
+			
+			delete[] x;
+			delete[] y;
+		}
+		void ReshowFigure(int shift){
+			for (int ind=0; ind<Figure::size; ind++){
+				setcursor(current->x[ind]+1, current->y[ind]+1);
+				std::cout << arr[current->y[ind]][current->x[ind]] << arr[current->y[ind]][current->x[ind]+1];
+				current->x[ind]+=shift;
+			}
+			for (int ind=0; ind<Figure::size; ind++){
+				setcursor(current->x[ind]+1, current->y[ind]+1);
+				std::cout << "[]";
 			}
 		}
 };
