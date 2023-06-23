@@ -134,7 +134,7 @@ class Board{
 			}
 			
 			for (int ind=0; ind<Figure::size; ind++){
-				if (x[ind] < 0 || x[ind] >= w) return;
+				if (x[ind] < 0 || x[ind]+1 >= w) return;
 				if (arr[y[ind]][x[ind]] != Board::void_symbol) return;
 			}
 			
@@ -143,16 +143,47 @@ class Board{
 			delete[] x;
 			delete[] y;
 		}
-		void ReshowFigure(int shift){
+		void Fall(){
+			int* x = new int[Figure::size];
+			int* y = new int[Figure::size];
+
+			for (int ind=0; ind<Figure::size; ind++){
+				x[ind] = current->x[ind];
+				y[ind] = current->y[ind]+1;
+			}
+			
+			for (int ind=0; ind<Figure::size; ind++){
+				if (y[ind] >= h || arr[y[ind]][x[ind]] != Board::void_symbol){
+					SaveFigure();
+					NewFigure();
+					return;
+				}
+			}
+			
+			ReshowFigure(1, false);
+			
+			delete[] x;
+			delete[] y;
+		}
+		void ReshowFigure(int shift, bool x=true){
 			for (int ind=0; ind<Figure::size; ind++){
 				setcursor(current->x[ind]+1, current->y[ind]+1);
 				std::cout << arr[current->y[ind]][current->x[ind]] << arr[current->y[ind]][current->x[ind]+1];
-				current->x[ind]+=shift;
+				if (x) current->x[ind]+=shift;
+				else current->y[ind]+=shift;
 			}
 			for (int ind=0; ind<Figure::size; ind++){
 				setcursor(current->x[ind]+1, current->y[ind]+1);
 				std::cout << "[]";
 			}
+		}
+		void SaveFigure(){
+			for (int ind=0; ind<Figure::size; ind++){
+				arr[current->y[ind]][current->x[ind]] = '[';
+				arr[current->y[ind]][current->x[ind]+1] = ']';
+			}
+			delete current;
+			current = nullptr;
 		}
 };
 char Board::void_symbol = ' ';
