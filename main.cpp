@@ -3,9 +3,8 @@
 
 int main(){
 	Board b;
-	b.NewFigure();
 	b.Show();
-	b.ShowFigure();
+	b.NewFigure();
 	
 	char move;
 	

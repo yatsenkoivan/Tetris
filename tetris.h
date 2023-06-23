@@ -19,7 +19,6 @@ struct Figure{
 		y = new int[size];
 		srand(time(0));
 		int type = rand()%4;
-		type = 3;
 		switch(type){
 			case 0:
 				/*[][][][]*/
@@ -208,21 +207,24 @@ class Board{
 					if (arr[row][col] == Board::void_symbol){
 						burn = false;
 					}
-					else{
-						shift = false;
-					}
 				}
 				if (burn){
 					for (int col=0; col<w; col++){
 						arr[row][col] = Board::void_symbol;
 					}
 				}
-				if (shift && row > 0){
+				for (int col=0; col<w; col++){
+					if (arr[row][col] != Board::void_symbol){
+						shift = false;
+					}
+				}
+				if (shift && row>0){
 					for (int col=0; col<w; col++){
 						std::swap(arr[row][col], arr[row-1][col]);
 					}
 				}
 			}
+			Show();
 		}
 };
 char Board::void_symbol = ' ';
