@@ -18,35 +18,47 @@ struct Figure{
 		x = new int[size];
 		y = new int[size];
 		srand(time(0));
-		int type = rand()%3;
+		int type = rand()%4;
+		type = 3;
 		switch(type){
 			case 0:
 				/*[][][][]*/
 				for (int ind=0; ind<size; ind++){
 					y[ind] = 0;
-					x[ind] = w/2+ind*2;
+					x[ind] = w/2+ind*2-1;
 				}
 				break;
 			case 1:
 				/*[]
 				  [][][]*/
 				y[0] = 0;
-				x[0] = w/2 + 2;
+				x[0] = w/2 + 2 - 1;
 				for (int ind=1; ind<size; ind++){
 					y[ind] = 1;
-					x[ind] = w/2+ind*2;
+					x[ind] = w/2+ind*2-1;
 				}
 				break;
 			case 2:
 				/*    []
 				  [][][]*/
 				y[0] = 0;
-				x[0] = w/2 + (size-1)*2;
+				x[0] = w/2 + (size-1)*2 - 1;
 				for (int ind=1; ind<size; ind++){
 					y[ind] = 1;
-					x[ind] = w/2+ind*2;
+					x[ind] = w/2+ind*2 - 1;
 				}
 				break;
+			case 3:
+				/*[][]
+				  [][]*/
+				for (int ind=0; ind<size/2; ind++){
+					y[ind] = 0;
+					x[ind] = w/2 + ind*2 - 1;
+				}
+				for (int ind=size/2; ind<size; ind++){
+					y[ind] = 1;
+					x[ind] = w/2 + (ind-size/2)*2 - 1;
+				}
 		}
 	}
 	~Figure(){
@@ -95,17 +107,17 @@ class Board{
 			for (int col=0; col<w; col++) std::cout << '-';
 			std::cout << '+' << std::endl;
 		}
-		//true - game over, otherwise false
+		//false - game over, otherwise true
 		bool NewFigure(){
 			for (int col=0; col<w; col++){
-				if (arr[0][col] != void_symbol) return true;
+				if (arr[0][col] != void_symbol) return false;
 			}
 			
 			current = new Figure(w/2);
 			
 			ShowFigure();
 			
-			return false;
+			return true;
 		}
 		void ShowFigure(){
 			for (int ind=0; ind<Figure::size; ind++){
@@ -155,6 +167,7 @@ class Board{
 			for (int ind=0; ind<Figure::size; ind++){
 				if (y[ind] >= h || arr[y[ind]][x[ind]] != Board::void_symbol){
 					SaveFigure();
+					BurnLines();
 					NewFigure();
 					return;
 				}
@@ -184,6 +197,32 @@ class Board{
 			}
 			delete current;
 			current = nullptr;
+		}
+		void BurnLines(){
+			bool burn;
+			bool shift;
+			for (int row=h-1; row>=0; row--){
+				burn = true;
+				shift = true;
+				for (int col=0; col<w; col++){
+					if (arr[row][col] == Board::void_symbol){
+						burn = false;
+					}
+					else{
+						shift = false;
+					}
+				}
+				if (burn){
+					for (int col=0; col<w; col++){
+						arr[row][col] = Board::void_symbol;
+					}
+				}
+				if (shift && row > 0){
+					for (int col=0; col<w; col++){
+						std::swap(arr[row][col], arr[row-1][col]);
+					}
+				}
+			}
 		}
 };
 char Board::void_symbol = ' ';
