@@ -18,7 +18,7 @@ struct Figure{
 		x = new int[size];
 		y = new int[size];
 		srand(time(0));
-		int type = rand()%4;
+		int type = rand()%7;
 		switch(type){
 			case 0:
 				/*[][][][]*/
@@ -58,6 +58,41 @@ struct Figure{
 					y[ind] = 1;
 					x[ind] = w/2 + (ind-size/2)*2 - 1;
 				}
+				break;
+			case 4:
+				/*  [][]
+				  [][]  */
+				for (int ind=0; ind<size/2; ind++){
+					y[ind] = 0;
+					x[ind] = w/2 + 2*(ind+1) - 1;
+				}
+				for (int ind=size/2; ind<size; ind++){
+					y[ind] = 1;
+					x[ind] = w/2 + 2*(ind-size/2) - 1;
+				}
+				break;
+			case 5:
+				/*  []
+				  [][][]*/
+			  	y[0] = 0;
+			  	x[0] = w/2 + 4 - 1;
+			  	for (int ind=1; ind<size; ind++){
+					y[ind] = 1;
+					x[ind] = w/2 + ind*2 - 1;
+			  	}
+			  	break;
+			case 6:
+				/*[][]
+				    [][]*/
+				for (int ind=0; ind<size/2; ind++){
+					y[ind] = 0;
+					x[ind] = w/2 + 2*ind - 1;
+				}
+				for (int ind=size/2; ind<size; ind++){
+					y[ind] = 1;
+					x[ind] = w/2 + 2*(ind-size/2+1) - 1;
+				}
+				break;
 		}
 	}
 	~Figure(){
