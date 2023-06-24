@@ -63,12 +63,12 @@ struct Figure{
 				/*  [][]
 				  [][]  */
 				for (int ind=0; ind<size/2; ind++){
-					y[ind] = 0;
-					x[ind] = w/2 + 2*(ind+1) - 1;
+					y[ind] = 1;
+					x[ind] = w/2 + 2*ind - 1;
 				}
 				for (int ind=size/2; ind<size; ind++){
-					y[ind] = 1;
-					x[ind] = w/2 + 2*(ind-size/2) - 1;
+					y[ind] = 0;
+					x[ind] = w/2 + 2*(ind-size/2+1) - 1;
 				}
 				break;
 			case 5:
@@ -170,6 +170,10 @@ class Board{
 				case 'D':
 					shift+=2;
 					break;
+				case 'r':
+				case 'R':
+					Rotate();
+					break;
 			}
 			int* x = new int[Figure::size];
 			int* y = new int[Figure::size];
@@ -184,10 +188,57 @@ class Board{
 				if (arr[y[ind]][x[ind]] != Board::void_symbol) return;
 			}
 			
-			ReshowFigure(shift);
+			ReshowFigure(current->x, current->y, x, y);
 			
 			delete[] x;
 			delete[] y;
+		}
+		void Rotate(){
+			int mid = Figure::size/2;
+			int midx = current->x[mid];
+			int midy = current->y[mid];
+			int x[Figure::size];
+			int y[Figure::size];
+			for (int ind=0; ind<Figure::size; ind++){
+				x[ind] = current->x[ind];
+				y[ind] = current->y[ind];
+				
+				
+				if (x[ind] != midx && y[ind] == midy){
+					y[ind] = midy - (midx - x[ind])/2;
+					x[ind] = midx;
+					continue;
+				}
+				if (x[ind] == midx && y[ind] != midy){
+					x[ind] = midx + (midy - y[ind])*2;
+					y[ind] = midy;
+					continue;
+				}
+				if (x[ind] != midx && y[ind] != midy){
+					if (x[ind] < midx){
+						if (y[ind] < midy){
+							x[ind] = midx + midx-x[ind];
+						}
+						else{
+							y[ind] = midy + midy-y[ind];
+						}
+					}
+					else{
+						if (y[ind] < midy){
+							y[ind] = midy + midy-y[ind];
+						}
+						else{
+							x[ind] = midx + midx-x[ind];
+						}
+					}
+				}
+			}
+			for (int ind=0; ind<Figure::size; ind++){
+				if (x[ind] < 0 || x[ind]+1 >= w) return;
+				if (y[ind] < 0 || y[ind]+1 >= w) return;
+				if (arr[y[ind]][x[ind]] != Board::void_symbol) return;
+			}
+			ReshowFigure(current->x, current->y, x,y);
 		}
 		void Fall(){
 			int* x = new int[Figure::size];
@@ -207,21 +258,22 @@ class Board{
 				}
 			}
 			
-			ReshowFigure(1, false);
+			
+			ReshowFigure(current->x, current->y, x, y);	
 			
 			delete[] x;
 			delete[] y;
 		}
-		void ReshowFigure(int shift, bool x=true){
+		void ReshowFigure(int* oldx, int* oldy, int* x, int* y){
 			for (int ind=0; ind<Figure::size; ind++){
-				setcursor(current->x[ind]+1, current->y[ind]+1);
-				std::cout << arr[current->y[ind]][current->x[ind]] << arr[current->y[ind]][current->x[ind]+1];
-				if (x) current->x[ind]+=shift;
-				else current->y[ind]+=shift;
+				setcursor(oldx[ind]+1, oldy[ind]+1);
+				std::cout << arr[oldy[ind]][oldx[ind]] << arr[oldy[ind]][oldx[ind]+1];
 			}
 			for (int ind=0; ind<Figure::size; ind++){
-				setcursor(current->x[ind]+1, current->y[ind]+1);
+				setcursor(x[ind]+1, y[ind]+1);
 				std::cout << "[]";
+				current->x[ind] = x[ind];
+				current->y[ind] = y[ind];
 			}
 		}
 		void SaveFigure(){
