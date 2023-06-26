@@ -109,6 +109,7 @@ class Board{
 		int h;
 		char** arr;
 		Figure* current;
+		Figure* nextFigure;
 	public:
 		static char void_symbol;
 		
@@ -119,6 +120,7 @@ class Board{
 				for (int col=0; col<this->w; col++) arr[row][col] = void_symbol;
 			}
 			current = nullptr;
+			nextFigure = new Figure(this->w/2);
 		}
 		Board() : Board(10, 20) {}
 		~Board(){
@@ -132,6 +134,7 @@ class Board{
 			std::cout << '+';
 			for (int col=0; col<w; col++) std::cout << '-';
 			std::cout << '+' << std::endl;
+			
 			for (int row=0; row<h; row++){
 				std::cout << '|';
 				for (int col=0; col<w; col++) std::cout << arr[row][col];
@@ -140,6 +143,19 @@ class Board{
 			std::cout << '+';
 			for (int col=0; col<w; col++) std::cout << '-';
 			std::cout << '+' << std::endl;
+			ShowNext();
+		}
+		void ShowNext(){
+			setcursor(w+2, 0);
+			for (int col=0; col<Figure::size*2+4; col++) std::cout << '-';
+			std::cout << '+';
+			for (int row=0; row<4; row++){
+				setcursor(w+2+Figure::size*2+4, row+1);
+				std::cout << '|';
+			}
+			setcursor(w+2, 5);
+			for (int col=0; col<Figure::size*2+4; col++) std::cout << '-';
+			std::cout << '+';
 		}
 		//false - game over, otherwise true
 		bool NewFigure(){
@@ -147,15 +163,29 @@ class Board{
 				if (arr[0][col] != void_symbol) return false;
 			}
 			
-			current = new Figure(w/2);
+			current = nextFigure;
+			nextFigure = new Figure(w/2);
 			
 			ShowFigure();
+			ShowNextFigure();
 			
 			return true;
 		}
 		void ShowFigure(){
 			for (int ind=0; ind<Figure::size; ind++){
 				setcursor(current->x[ind]+1, current->y[ind]+1);
+				std::cout << "[]";
+			}
+		}
+		void ShowNextFigure(){
+			for (int row=0; row<4; row++){
+				setcursor(w+2, row+1);
+				for (int col=0; col<Figure::size*2+2; col++){
+					std::cout << ' ';
+				}
+			}
+			for (int ind=0; ind<Figure::size; ind++){
+				setcursor(nextFigure->x[ind]-(w/4+2-1) + w+6, nextFigure->y[ind]+2);
 				std::cout << "[]";
 			}
 		}

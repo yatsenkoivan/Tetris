@@ -3,12 +3,12 @@
 
 int main(){
 	Board b;
+	Sleep(1000);
 	b.Show();
 	b.NewFigure();
-	
 	char move;
 	
-	double delay = 200;
+	double delay = 300;
 	
 	clock_t start = clock();
 	clock_t end = clock();
