@@ -19,6 +19,7 @@ struct Figure{
 		y = new int[size];
 		srand(time(0));
 		int type = rand()%7;
+		type = 3;
 		switch(type){
 			case 0:
 				/*[][][][]*/
@@ -110,6 +111,7 @@ class Board{
 		char** arr;
 		Figure* current;
 		Figure* nextFigure;
+		int lvl;
 	public:
 		static char void_symbol;
 		
@@ -121,6 +123,7 @@ class Board{
 			}
 			current = nullptr;
 			nextFigure = new Figure(this->w/2);
+			lvl=1;
 		}
 		Board() : Board(10, 20) {}
 		~Board(){
@@ -130,7 +133,7 @@ class Board{
 			delete[] arr;
 		}
 		void Show(){
-			system("cls");
+			setcursor(0,0);
 			std::cout << '+';
 			for (int col=0; col<w; col++) std::cout << '-';
 			std::cout << '+' << std::endl;
@@ -144,6 +147,8 @@ class Board{
 			for (int col=0; col<w; col++) std::cout << '-';
 			std::cout << '+' << std::endl;
 			ShowNext();
+			ShowLVL();
+			ShowLVLValue();
 		}
 		void ShowNext(){
 			setcursor(w+2, 0);
@@ -156,6 +161,24 @@ class Board{
 			setcursor(w+2, 5);
 			for (int col=0; col<Figure::size*2+4; col++) std::cout << '-';
 			std::cout << '+';
+		}
+		void ShowLVL(){
+			setcursor(w+2, 5);
+			for (int col=0; col<10; col++) std::cout << '-';
+			std::cout << '+';
+			for (int row=0; row<3; row++){
+				setcursor(w+2+10, row+1+5);
+				std::cout << '|';
+			}
+			setcursor(w+2, 9);
+			for (int col=0; col<10; col++) std::cout << '-';
+			std::cout << '+';
+		}
+		void ShowLVLValue(){
+			setcursor(w+2+2, 5+2);
+			std::cout << "      ";
+			setcursor(w+2+2, 5+2);
+			std::cout << "LVL: " << lvl;
 		}
 		//false - game over, otherwise true
 		bool NewFigure(){
@@ -319,7 +342,6 @@ class Board{
 			bool shift;
 			for (int row=h-1; row>=0; row--){
 				burn = true;
-				shift = true;
 				for (int col=0; col<w; col++){
 					if (arr[row][col] == Board::void_symbol){
 						burn = false;
@@ -330,14 +352,14 @@ class Board{
 						arr[row][col] = Board::void_symbol;
 					}
 				}
+			}
+			int ind=h-1;
+			for (int row=h-1; row>=0; row--){
 				for (int col=0; col<w; col++){
 					if (arr[row][col] != Board::void_symbol){
-						shift = false;
-					}
-				}
-				if (shift && row>0){
-					for (int col=0; col<w; col++){
-						std::swap(arr[row][col], arr[row-1][col]);
+						std::swap(arr[row], arr[ind]);
+						ind--;
+						break;
 					}
 				}
 			}
