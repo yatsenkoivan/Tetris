@@ -8,7 +8,7 @@ int main(){
 	b.NewFigure();
 	char move;
 	
-	double delay = 160;
+	double delay = 200;
 	
 	clock_t start = clock();
 	clock_t end = clock();

@@ -19,7 +19,6 @@ struct Figure{
 		y = new int[size];
 		srand(time(0));
 		int type = rand()%7;
-		type = 3;
 		switch(type){
 			case 0:
 				/*[][][][]*/
@@ -112,6 +111,8 @@ class Board{
 		Figure* current;
 		Figure* nextFigure;
 		int lvl;
+		int lines;
+		int score;
 	public:
 		static char void_symbol;
 		
@@ -124,6 +125,8 @@ class Board{
 			current = nullptr;
 			nextFigure = new Figure(this->w/2);
 			lvl=1;
+			lines=0;
+			score=0;
 		}
 		Board() : Board(10, 20) {}
 		~Board(){
@@ -149,36 +152,40 @@ class Board{
 			ShowNext();
 			ShowLVL();
 			ShowLVLValue();
+			ShowLinesCount();
+			ShowLinesCountValue();
+			ShowScore();
+			ShowScoreValue();
 		}
 		void ShowNext(){
-			setcursor(w+2, 0);
-			for (int col=0; col<Figure::size*2+4; col++) std::cout << '-';
-			std::cout << '+';
-			for (int row=0; row<4; row++){
-				setcursor(w+2+Figure::size*2+4, row+1);
-				std::cout << '|';
-			}
-			setcursor(w+2, 5);
-			for (int col=0; col<Figure::size*2+4; col++) std::cout << '-';
-			std::cout << '+';
+			ShowTable(Figure::size*2+4, 4,0);
 		}
 		void ShowLVL(){
-			setcursor(w+2, 5);
-			for (int col=0; col<10; col++) std::cout << '-';
-			std::cout << '+';
-			for (int row=0; row<3; row++){
-				setcursor(w+2+10, row+1+5);
-				std::cout << '|';
-			}
-			setcursor(w+2, 9);
-			for (int col=0; col<10; col++) std::cout << '-';
-			std::cout << '+';
+			ShowTable(10,3,5);
 		}
 		void ShowLVLValue(){
 			setcursor(w+2+2, 5+2);
 			std::cout << "      ";
 			setcursor(w+2+2, 5+2);
 			std::cout << "LVL: " << lvl;
+		}
+		void ShowLinesCount(){
+			ShowTable(14,3,9);
+		}
+		void ShowLinesCountValue(){
+			setcursor(w+2+1, 9+2);
+			std::cout << "            ";
+			setcursor(w+2+1, 9+2);
+			std::cout << "LINES: " << lines;
+		}
+		void ShowScore(){
+			ShowTable(16, 3, 13);
+		}
+		void ShowScoreValue(){
+			setcursor(w+2+1, 13+2);
+			std::cout << "                ";
+			setcursor(w+2+1, 13+2);
+			std::cout << "SCORE: " << score;
 		}
 		//false - game over, otherwise true
 		bool NewFigure(){
@@ -193,6 +200,18 @@ class Board{
 			ShowNextFigure();
 			
 			return true;
+		}
+		void ShowTable(int width, int height, int lvl){
+			setcursor(w+2, lvl);
+			for (int col=0; col<width+1; col++) std::cout << '-';
+			std::cout << '+';
+			for (int row=0; row<height; row++){
+				setcursor(w+2+width+1, lvl+row+1);
+				std::cout << '|';
+			}
+			setcursor(w+2, lvl+height+1);
+			for (int col=0; col<width+1; col++) std::cout << '-';
+			std::cout << '+';
 		}
 		void ShowFigure(){
 			for (int ind=0; ind<Figure::size; ind++){
@@ -306,7 +325,7 @@ class Board{
 				if (y[ind] >= h || arr[y[ind]][x[ind]] != Board::void_symbol){
 					SaveFigure();
 					BurnLines();
-					NewFigure();
+					if (NewFigure() == false) GameOver();
 					return;
 				}
 			}
@@ -339,7 +358,7 @@ class Board{
 		}
 		void BurnLines(){
 			bool burn;
-			bool shift;
+			int burnt=0;
 			for (int row=h-1; row>=0; row--){
 				burn = true;
 				for (int col=0; col<w; col++){
@@ -348,6 +367,7 @@ class Board{
 					}
 				}
 				if (burn){
+					burnt++;
 					for (int col=0; col<w; col++){
 						arr[row][col] = Board::void_symbol;
 					}
@@ -363,7 +383,16 @@ class Board{
 					}
 				}
 			}
+			lines+=burnt;
 			Show();
+			ShowLVLValue();
+			ShowLinesCountValue();
+			ShowScoreValue();
+		}
+		void GameOver(){
+			setcursor(0, h+2);
+			std::cout << "GAME OVER\n";
+			exit(0);
 		}
 };
 char Board::void_symbol = ' ';
