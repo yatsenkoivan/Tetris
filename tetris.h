@@ -2,6 +2,7 @@
 #include <iostream>
 #include <windows.h>
 #include <time.h>
+#include <conio.h>
 
 void setcursor(short x, short y) { 
     COORD pos = {x, y};
@@ -17,7 +18,7 @@ struct Figure{
 	Figure(int w){
 		x = new int[size];
 		y = new int[size];
-		srand(time(0));
+		srand(clock());
 		int type = rand()%7;
 		switch(type){
 			case 0:
@@ -113,8 +114,11 @@ class Board{
 		int lvl;
 		int lines;
 		int score;
+		int base_score;
+		double current_speed;
 	public:
 		static char void_symbol;
+		static int frames_per_second;
 		
 		Board(int w, int h) : w{w*2}, h{h} {
 			arr = new char*[this->h];
@@ -127,6 +131,8 @@ class Board{
 			lvl=1;
 			lines=0;
 			score=0;
+			base_score = 50;
+			current_speed = 48;
 		}
 		Board() : Board(10, 20) {}
 		~Board(){
@@ -134,6 +140,31 @@ class Board{
 				delete[] arr[row];
 			}
 			delete[] arr;
+		}
+		void Menu(){
+			//Sleep(1000); //first figures debug
+			
+			Show();
+			NewFigure();
+			
+			char move;
+			
+			clock_t start = clock();
+			clock_t end = clock();
+			double diff;
+			
+			while (true){
+				if (kbhit()){
+					move = _getch();
+					Press(move);
+				}
+				end = clock();
+				diff = difftime(end,start);
+				if (diff >= current_speed*frames_per_second){
+					Fall();
+					start = clock();
+				}
+			}
 		}
 		void Show(){
 			setcursor(0,0);
@@ -189,6 +220,7 @@ class Board{
 		}
 		//false - game over, otherwise true
 		bool NewFigure(){
+			
 			for (int col=0; col<w; col++){
 				if (arr[0][col] != void_symbol) return false;
 			}
@@ -245,6 +277,10 @@ class Board{
 				case 'r':
 				case 'R':
 					Rotate();
+					break;
+				case 's':
+				case 'S':
+					Fall();
 					break;
 			}
 			int* x = new int[Figure::size];
@@ -384,16 +420,34 @@ class Board{
 				}
 			}
 			lines+=burnt;
+			int add=base_score;
+			for (int i=2; i<=burnt; i++){
+				add *= i;
+			}
+			add *= lvl;
+			if (burnt > 0) score += add;
+			
+			if (lines >= lvl*10){
+				lvl++;
+				CalcSpeed();
+			}
+			
 			Show();
 			ShowLVLValue();
 			ShowLinesCountValue();
 			ShowScoreValue();
 		}
+		void CalcSpeed(){
+			double temp = this->current_speed;
+			this->current_speed = std::max(1.0,this->current_speed*0.9);
+		}
 		void GameOver(){
 			setcursor(0, h+2);
 			std::cout << "GAME OVER\n";
+			system("pause");
 			exit(0);
 		}
 };
 char Board::void_symbol = ' ';
+int Board::frames_per_second = 10;
 
