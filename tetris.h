@@ -132,6 +132,7 @@ class Board{
 			lines=0;
 			score=0;
 			base_score = 50;
+			current_speed = 48;
 			CalcSpeed();
 		}
 		Board() : Board(10, 20) {}
